@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Github Repo Fetcher</title>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 50%;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2rem;
+        }
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            margin: 20px 0;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .user-info {
+            text-align: left;
+            margin-top: 20px;
+        }
+        .user-info img {
+            width: 100px;
+            border-radius: 50%;
+        }
+        .repo-list {
+            list-style: none;
+            padding: 0;
+        }
+        .repo-list li {
+            display: inline-block;
+            margin: 5px;
+        }
+        .repo-list a {
+            background-color: #f04c24;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .repo-list a:hover {
+            background-color: #d43f1b;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>API Sample</h1>
+        <form id="githubForm">
+            <input type="text" id="username" placeholder="Github username..." required />
+            <br>
+            <button type="submit">Pull User Data</button>
+        </form>
+        
+        <div id="userData" class="user-info"></div>
+    </div>
+
+    <script>
+        document.getElementById('githubForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent the form from submitting
+
+            const username = document.getElementById('username').value;
+            const url = `https://api.github.com/users/${username}/repos`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    displayRepos(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        });
+
+        function displayRepos(repos) {
+            const userDataDiv = document.getElementById('userData');
+            userDataDiv.innerHTML = ''; // Clear previous data
+
+            if (repos.length === 0) {
+                userDataDiv.innerHTML = '<p>No repositories found for this user.</p>';
+                return;
+            }
+
+            const user = repos[0].owner; // Assuming repos array has at least one repo
+            userDataDiv.innerHTML = `
+                <h2>${user.login} (@${user.login})</h2>
+                <img src="${user.avatar_url}" alt="${user.login}" />
+                <p>Followers: ${user.followers} - Following: ${user.following}</p>
+                <p>Repos: ${repos.length}</p>
+                <h3>Repos List:</h3>
+                <ul class="repo-list">
+                    ${repos.map(repo => `<li><a href="${repo.html_url}" target="_blank">${repo.name}</a></li>`).join('')}
+                </ul>
+            `;
+        }
+    </script>
+
+</body>
+</html>
